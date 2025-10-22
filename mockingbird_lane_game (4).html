@@ -1,13 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Mockingbird Lane Mystery</title>
     <style>
-        body { font-family: monospace; background-color: #111; color: #eee; text-align: center; }
-        #grid { display: grid; grid-template-columns: repeat(20, 20px); grid-template-rows: repeat(20, 20px); margin: 20px auto; }
-        .cell { width: 20px; height: 20px; border: 1px solid #333; }
+        body {
+            font-family: monospace;
+            background-color: #111;
+            color: #eee;
+            text-align: center;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(20, 20px);
+            grid-template-rows: repeat(20, 20px);
+            margin: 20px auto;
+        }
+        .cell {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #333;
+        }
         .street { background-color: #444; }
         .player { background-color: yellow; }
         .door { border: 2px solid red; }
@@ -28,6 +41,7 @@
     </div>
     <div id="actions" style="margin-top:10px;"></div>
     <div id="clueBox" style="margin-top:10px;"></div>
+
     <script>
         const gridSize = 20;
         const grid = document.getElementById('grid');
@@ -93,7 +107,10 @@
             interrogateBtn.onclick = () => interrogate(house);
             const leaveBtn = document.createElement('button');
             leaveBtn.innerText = 'Leave';
-            leaveBtn.onclick = () => { clueBox.innerText = 'You left the door.'; actions.innerHTML = ''; };
+            leaveBtn.onclick = () => {
+                clueBox.innerText = 'You left the door.';
+                actions.innerHTML = '';
+            };
             actions.appendChild(interrogateBtn);
             actions.appendChild(leaveBtn);
         }

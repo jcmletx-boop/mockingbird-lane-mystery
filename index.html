@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Mockingbird Lane Mystery</title>
+    <script src="https://www.gstatic.com0.5.0/firebase-app.js</script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase/script>
     <style>
         body {
             font-family: monospace;
@@ -77,12 +79,24 @@
     <div id="clueBox"></div>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpeLY67Kidc0aMMr0E0bBg8hNpFYGkC90",
+            authDomain: "mockingbirdlanegame.firebaseapp.com",
+            projectId: "mockingbirdlanegame",
+            storageBucket: "mockingbirdlanegame.firebasestorage.app",
+            messagingSenderId: "950641946057",
+            appId: "1:950641946057:web:7d3118b3970cf8f7ba8c18",
+            measurementId: "G-RCLRMBH3K4"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const gridSize = 40;
         const grid = document.getElementById('grid');
         const actions = document.getElementById('actions');
         const clueBox = document.getElementById('clueBox');
-        let playerPos = {x: 20, y: 39}; // Start near bottom center
-        let votes = {up: 0, down: 0, left: 0, right: 0};
+        let playerPos = {x: 20, y: 39};
         let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
         let blockedTiles = [];
 
@@ -146,28 +160,42 @@
         }
 
         function vote(direction) {
-            votes[direction]++;
+            const voteRef = db.ref('votes/' + Date.now());
+            voteRef.set(direction);
         }
 
         function movePlayer() {
-            let maxVotes = 0;
-            let direction = null;
+            db.ref('votes').once('value', snapshot => {
+                const allVotes = snapshot.val();
+                const voteCounts = { up: 0, down: 0, left: 0, right: 0 };
 
-            for (let dir in votes) {
-                if (votes[dir] > maxVotes) {
-                    maxVotes = votes[dir];
-                    direction = dir;
+                for (let key in allVotes) {
+                    const dir = allVotes[key];
+                    if (voteCounts[dir] !== undefined) {
+                        voteCounts[dir]++;
+                    }
                 }
-            }
 
-            let newX = playerPos.x;
-            let newY = playerPos.y;
+                let maxVotes = 0;
+                let direction = null;
+                for (let dir in voteCounts) {
+                    if (voteCounts[dir] > maxVotes) {
+                        maxVotes = voteCounts[dir];
+                        direction = dir;
+                    }
+                }
 
-            if (maxVotes > 0 && direction) {
-                if (direction === 'up') newY--;
-                if (direction === 'down') newY++;
-                if (direction === 'left') newX--;
-                if (direction === 'right') newX++;
+                db.ref('votes').remove();
+
+                let newX = playerPos.x;
+                let newY = playerPos.y;
+
+                if (direction) {
+                    if (direction === 'up') newY--;
+                    if (direction === 'down') newY++;
+                    if (direction === 'left') newX--;
+                    if (direction === 'right') newX++;
+                }
 
                 if (
                     newX >= 0 && newX < gridSize - 1 &&
@@ -180,10 +208,9 @@
                     playerPos.x = newX;
                     playerPos.y = newY;
                 }
-            }
 
-            votes = {up: 0, down: 0, left: 0, right: 0};
-            createGrid();
+                createGrid();
+            });
         }
 
         function checkDoor() {

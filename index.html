@@ -126,12 +126,12 @@
                 for (let x = 0; x < gridSize; x++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
-
+             
                     if (x >= 16 && x <= 22) {
-                        cell.classList.add('street');
                         if (x === 19) {
-                            cell.classList.remove('street');
                             cell.classList.add('yellow-stripe');
+                        } else {
+                            cell.classList.add('street');
                         }
                     }
 

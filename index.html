@@ -55,21 +55,39 @@
         const gridSize = 20;
         const grid = document.getElementById('grid');
         let playerPos = {x: 10, y: 10};
+function createGrid() {
+    grid.innerHTML = '';
+    const houses = {
+        haunted: {x: 2, y: 2},
+        pumpkin: {x: 14, y: 2},
+        lab: {x: 2, y: 12},
+        cemetery: {x: 14, y: 12}
+    };
 
-        function createGrid() {
-            grid.innerHTML = '';
-            for (let y = 0; y < gridSize; y++) {
-                for (let x = 0; x < gridSize; x++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    if (x === playerPos.x && y === playerPos.y) {
-                        cell.classList.add('player');
-                    }
-                    grid.appendChild(cell);
+    for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+
+            // Add house sprites
+            for (let h in houses) {
+                const hx = houses[h].x;
+                const hy = houses[h].y;
+                if (x >= hx && x < hx + 4 && y >= hy && y < hy + 4) {
+                    cell.classList.add(h);
                 }
             }
-        }
 
+            // Add player
+            if (x === playerPos.x && y === playerPos.y) {
+                cell.classList.add('player');
+            }
+
+            grid.appendChild(cell);
+        }
+    }
+}
+        
         createGrid();
     </script>
 </body>

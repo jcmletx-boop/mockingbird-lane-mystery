@@ -48,7 +48,7 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            z-index: 1;
+            z-index: 10;
         }
 
         #actions, #clueBox {
@@ -80,6 +80,7 @@
         let playerPos = {x: 10, y: 19};
         let votes = {up: 0, down: 0, left: 0, right: 0};
         let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
+        let blockedTiles = [];
 
         const houses = {
             haunted:  { x: 2, y: 2,  image: 'haunted.png',  door: { x: 3, y: 8 } },
@@ -87,6 +88,19 @@
             lab:      { x: 2, y: 12, image: 'lab.png',      door: { x: 5, y: 18 } },
             cemetery: { x: 14, y: 12, image: 'cemetery.png', door: { x: 15, y: 18 } }
         };
+
+        function generateBlockedTiles() {
+            blockedTiles = [];
+            for (let h in houses) {
+                const house = houses[h];
+                for (let y = house.y; y < house.y + 6; y++) {
+                    for (let x = house.x; x < house.x + 6; x++) {
+                        if (x === house.door.x && y === house.door.y) continue;
+                        blockedTiles.push(`${x},${y}`);
+                    }
+                }
+            }
+        }
 
         function createGrid() {
             grid.innerHTML = '';
@@ -140,11 +154,23 @@
                 }
             }
 
+            let newX = playerPos.x;
+            let newY = playerPos.y;
+
             if (maxVotes > 0 && direction) {
-                if (direction === 'up' && playerPos.y > 0) playerPos.y--;
-                if (direction === 'down' && playerPos.y < gridSize - 1) playerPos.y++;
-                if (direction === 'left' && playerPos.x > 0) playerPos.x--;
-                if (direction === 'right' && playerPos.x < gridSize - 1) playerPos.x++;
+                if (direction === 'up') newY--;
+                if (direction === 'down') newY++;
+                if (direction === 'left') newX--;
+                if (direction === 'right') newX++;
+
+                if (
+                    newX >= 0 && newX < gridSize &&
+                    newY >= 0 && newY < gridSize &&
+                    !blockedTiles.includes(`${newX},${newY}`)
+                ) {
+                    playerPos.x = newX;
+                    playerPos.y = newY;
+                }
             }
 
             votes = {up: 0, down: 0, left: 0, right: 0};
@@ -208,6 +234,7 @@
             clueBox.innerText = clue;
         }
 
+        generateBlockedTiles();
         createGrid();
         setInterval(movePlayer, 7000);
     </script>

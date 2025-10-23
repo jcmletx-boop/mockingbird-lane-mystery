@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Mockingbird Lane Mystery</title>
-    <script src="https://www.gstatic.com0.5.0/firebase-app.js</script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase/script>
+    https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js</script>
+    <script src="https://wwwfirebasejs/10.5.0/firebase-database.js</script>
     <style>
         body {
             font-family: monospace;
@@ -12,7 +12,6 @@
             color: #eee;
             text-align: center;
         }
-
         #grid {
             position: relative;
             display: grid;
@@ -22,23 +21,19 @@
             width: 800px;
             height: 800px;
         }
-
         .cell {
             width: 20px;
             height: 20px;
             border: 1px solid #333;
         }
-
         .street {
             background-color: #444;
         }
-
         .door {
             border: 2px solid red;
             background-color: #800;
             box-sizing: border-box;
         }
-
         .house-sprite {
             position: absolute;
             width: 180px;
@@ -48,7 +43,6 @@
             background-position: center;
             z-index: 10;
         }
-
         .player-sprite {
             position: absolute;
             width: 40px;
@@ -56,25 +50,14 @@
             background-color: yellow;
             z-index: 20;
         }
-
         #actions, #clueBox {
             margin-top: 10px;
-        }
-
-        button {
-            margin: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Mockingbird Lane Mystery</h1>
     <div id="grid"></div>
-    <div>
-        <button onclick="vote('up')">Up</button>
-        <button onclick="vote('down')">Down</button>
-        <button onclick="vote('left')">Left</button>
-        <button onclick="vote('right')">Right</button>
-    </div>
     <div id="actions"></div>
     <div id="clueBox"></div>
 
@@ -122,24 +105,20 @@
 
         function createGrid() {
             grid.innerHTML = '';
-
             for (let y = 0; y < gridSize; y++) {
                 for (let x = 0; x < gridSize; x++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
                     if (x === 20) cell.classList.add('street');
-
                     for (let h in houses) {
                         const door = houses[h].door;
                         if (x === door.x && y === door.y) {
                             cell.classList.add('door');
                         }
                     }
-
                     grid.appendChild(cell);
                 }
             }
-
             for (let h in houses) {
                 const house = houses[h];
                 const sprite = document.createElement('div');
@@ -149,13 +128,11 @@
                 sprite.style.top = `${house.y * 20}px`;
                 grid.appendChild(sprite);
             }
-
             const playerSprite = document.createElement('div');
             playerSprite.classList.add('player-sprite');
             playerSprite.style.left = `${playerPos.x * 20}px`;
             playerSprite.style.top = `${playerPos.y * 20}px`;
             grid.appendChild(playerSprite);
-
             checkDoor();
         }
 
@@ -168,14 +145,12 @@
             db.ref('votes').once('value', snapshot => {
                 const allVotes = snapshot.val();
                 const voteCounts = { up: 0, down: 0, left: 0, right: 0 };
-
                 for (let key in allVotes) {
                     const dir = allVotes[key];
                     if (voteCounts[dir] !== undefined) {
                         voteCounts[dir]++;
                     }
                 }
-
                 let maxVotes = 0;
                 let direction = null;
                 for (let dir in voteCounts) {
@@ -184,19 +159,15 @@
                         direction = dir;
                     }
                 }
-
                 db.ref('votes').remove();
-
                 let newX = playerPos.x;
                 let newY = playerPos.y;
-
                 if (direction) {
                     if (direction === 'up') newY--;
                     if (direction === 'down') newY++;
                     if (direction === 'left') newX--;
                     if (direction === 'right') newX++;
                 }
-
                 if (
                     newX >= 0 && newX < gridSize - 1 &&
                     newY >= 0 && newY < gridSize - 1 &&
@@ -205,11 +176,8 @@
                     !blockedTiles.includes(`${newX},${newY + 1}`) &&
                     !blockedTiles.includes(`${newX + 1},${newY + 1}`)
                 ) {
-                    playerPos.x = newX;
-                    playerPos.y = newY;
+                    db.ref('playerPosition').set({ x: newX, y: newY });
                 }
-
-                createGrid();
             });
         }
 
@@ -217,14 +185,12 @@
             actions.innerHTML = '';
             for (let h in houses) {
                 const door = houses[h].door;
-
                 const playerTiles = [
                     `${playerPos.x},${playerPos.y}`,
                     `${playerPos.x + 1},${playerPos.y}`,
                     `${playerPos.x},${playerPos.y + 1}`,
                     `${playerPos.x + 1},${playerPos.y + 1}`
                 ];
-
                 if (playerTiles.includes(`${door.x},${door.y}`)) {
                     const knockBtn = document.createElement('button');
                     knockBtn.innerText = 'Knock on Door';
@@ -254,7 +220,6 @@
                 clueBox.innerText = 'You have already interrogated here twice.';
                 return;
             }
-
             interrogationCounts[house]++;
             let clue = '';
             if (house === 'haunted') {
@@ -274,7 +239,6 @@
                     'Ghostie: I heard rustling in the pumpkin patch...' :
                     'Ghostie: Snackula seemed hungry for attention.';
             }
-
             clueBox.innerText = clue;
         }
 
@@ -285,8 +249,25 @@
             if (e.key === 'ArrowRight') vote('right');
         });
 
+        db.ref('playerPosition').on('value', snapshot => {
+            const pos = snapshot.val();
+            if (pos) {
+                playerPos = pos;
+                createGrid();
+            }
+        });
+
         generateBlockedTiles();
-        createGrid();
+        db.ref('playerPosition').once('value', snapshot => {
+            if (!snapshot.exists()) {
+                db.ref('playerPosition').set(playerPos);
+            } else {
+                playerPos = snapshot.val();
+                createGrid();
+            }
+        });
+
+        // Host-only: run vote tally every 7 seconds
         setInterval(movePlayer, 7000);
     </script>
 </body>

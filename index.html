@@ -37,6 +37,7 @@
 
         .door {
             border: 2px solid red;
+            background-color: #800;
             box-sizing: border-box;
         }
 
@@ -72,27 +73,24 @@
     <div id="clueBox"></div>
 
     <script>
-        
-const gridSize = 20;
-    const grid = document.getElementById('grid');
-    const actions = document.getElementById('actions');
-    const clueBox = document.getElementById('clueBox');
-    let playerPos = {x: 10, y: 19};
-    let votes = {up: 0, down: 0, left: 0, right: 0};
-    let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
-
+        const gridSize = 20;
+        const grid = document.getElementById('grid');
+        const actions = document.getElementById('actions');
+        const clueBox = document.getElementById('clueBox');
+        let playerPos = {x: 10, y: 19};
+        let votes = {up: 0, down: 0, left: 0, right: 0};
+        let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
 
         const houses = {
-            haunted: {x: 2, y: 2, image: 'haunted.png', door: {x: 3, y: 8}},
-            pumpkin: {x: 14, y: 2, image: 'pumpkin.png', door: {x: 15, y: 8}},
-            lab: {x: 2, y: 12, image: 'lab.png', door: {x: 5, y: 18}},
-            cemetery: {x: 14, y: 12, image: 'cemetery.png', door: {x: 15, y: 18}}
+            haunted:  { x: 2, y: 2,  image: 'haunted.png',  door: { x: 3, y: 8 } },
+            pumpkin:  { x: 14, y: 2, image: 'pumpkin.png',  door: { x: 15, y: 8 } },
+            lab:      { x: 2, y: 12, image: 'lab.png',      door: { x: 5, y: 18 } },
+            cemetery: { x: 14, y: 12, image: 'cemetery.png', door: { x: 15, y: 18 } }
         };
 
         function createGrid() {
             grid.innerHTML = '';
 
-            // Create grid cells
             for (let y = 0; y < gridSize; y++) {
                 for (let x = 0; x < gridSize; x++) {
                     const cell = document.createElement('div');
@@ -114,7 +112,6 @@ const gridSize = 20;
                 }
             }
 
-            // Add house sprites
             for (let h in houses) {
                 const house = houses[h];
                 const sprite = document.createElement('div');
@@ -131,28 +128,28 @@ const gridSize = 20;
         function vote(direction) {
             votes[direction]++;
         }
-function movePlayer() {
-    let maxVotes = 0;
-    let direction = null;
 
-    for (let dir in votes) {
-        if (votes[dir] > maxVotes) {
-            maxVotes = votes[dir];
-            direction = dir;
+        function movePlayer() {
+            let maxVotes = 0;
+            let direction = null;
+
+            for (let dir in votes) {
+                if (votes[dir] > maxVotes) {
+                    maxVotes = votes[dir];
+                    direction = dir;
+                }
+            }
+
+            if (maxVotes > 0 && direction) {
+                if (direction === 'up' && playerPos.y > 0) playerPos.y--;
+                if (direction === 'down' && playerPos.y < gridSize - 1) playerPos.y++;
+                if (direction === 'left' && playerPos.x > 0) playerPos.x--;
+                if (direction === 'right' && playerPos.x < gridSize - 1) playerPos.x++;
+            }
+
+            votes = {up: 0, down: 0, left: 0, right: 0};
+            createGrid();
         }
-    }
-
-    if (maxVotes > 0 && direction) {
-        if (direction === 'up' && playerPos.y > 0) playerPos.y--;
-        if (direction === 'down' && playerPos.y < gridSize - 1) playerPos.y++;
-        if (direction === 'left' && playerPos.x > 0) playerPos.x--;
-        if (direction === 'right' && playerPos.x < gridSize - 1) playerPos.x++;
-    }
-
-    votes = {up: 0, down: 0, left: 0, right: 0};
-    createGrid();
-}
-
 
         function checkDoor() {
             actions.innerHTML = '';

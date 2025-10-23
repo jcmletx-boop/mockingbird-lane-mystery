@@ -166,6 +166,7 @@ function updatePlayerSprite() {
         }
 
         function movePlayer() {
+          console.log("Moving:", lastDirection, "to", playerPos.x, playerPos.y);
             let maxVotes = 0;
             let direction = null;
 

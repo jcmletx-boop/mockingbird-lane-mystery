@@ -3,10 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Mockingbird Lane Mystery</title>
-
-    <scriptsrc="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js
-    <scriptsrc="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"</script>
-
     <style>
         body {
             font-family: monospace;
@@ -28,7 +24,7 @@
         .cell {
             width: 20px;
             height: 20px;
-            background-color: #2a2a2a;
+            border: 1px solid #333;
         }
 
         .street {
@@ -55,10 +51,7 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            background-image: url('player.png'); /* Replace with your sprite */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            background-color: yellow;
             z-index: 20;
         }
 
@@ -75,39 +68,21 @@
     <h1>Mockingbird Lane Mystery</h1>
     <div id="grid"></div>
     <div>
-        <button onclick="castVote('up')">Up</button>
-        <button onclick="castVote('down')">Down</button>
-        <button onclick="castVote('left')">Left</button>
-        <button onclick="castVote('right')">Right</button>
+        <button onclick="vote('up')">Up</button>
+        <button onclick="vote('down')">Down</button>
+        <button onclick="vote('left')">Left</button>
+        <button onclick="vote('right')">Right</button>
     </div>
     <div id="actions"></div>
     <div id="clueBox"></div>
 
     <script>
-        // ✅ Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpeLY67Kidc0aMMr0E0bBg8hNpFYGkC90",
-            authDomain: "mockingbirdlanegame.firebaseapp.com",
-            databaseURL: "https://mockingbirdlanegame-default-rtdb.firebaseio.com",
-            projectId: "mockingbirdlanegame",
-            storageBucket: "mockingbirdlanegame.appspot.com",
-            messagingSenderId: "950641946057",
-            appId: "1:950641946057:web:7d3118b3970cf8f7ba8c18"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // ✅ Log live votes to console
-        db.ref('votes').on('value', snapshot => {
-            console.log('Live votes:', snapshot.val());
-        });
-
         const gridSize = 40;
         const grid = document.getElementById('grid');
         const actions = document.getElementById('actions');
         const clueBox = document.getElementById('clueBox');
-        let playerPos = {x: 20, y: 39};
+        let playerPos = {x: 20, y: 39}; // Start near bottom center
+        let votes = {up: 0, down: 0, left: 0, right: 0};
         let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
         let blockedTiles = [];
 
@@ -170,49 +145,45 @@
             checkDoor();
         }
 
-        function castVote(direction) {
-            const voteRef = db.ref('votes/' + direction);
-            voteRef.transaction(current => (current || 0) + 1);
+        function vote(direction) {
+            votes[direction]++;
         }
 
-        function movePlayerFromVotes() {
-            db.ref('votes').once('value').then(snapshot => {
-                const votes = snapshot.val() || {};
-                let maxVotes = 0;
-                let direction = null;
+        function movePlayer() {
+            let maxVotes = 0;
+            let direction = null;
 
-                for (let dir in votes) {
-                    if (votes[dir] > maxVotes) {
-                        maxVotes = votes[dir];
-                        direction = dir;
-                    }
+            for (let dir in votes) {
+                if (votes[dir] > maxVotes) {
+                    maxVotes = votes[dir];
+                    direction = dir;
                 }
+            }
 
-                let newX = playerPos.x;
-                let newY = playerPos.y;
+            let newX = playerPos.x;
+            let newY = playerPos.y;
 
-                if (maxVotes > 0 && direction) {
-                    if (direction === 'up') newY--;
-                    if (direction === 'down') newY++;
-                    if (direction === 'left') newX--;
-                    if (direction === 'right') newX++;
+            if (maxVotes > 0 && direction) {
+                if (direction === 'up') newY--;
+                if (direction === 'down') newY++;
+                if (direction === 'left') newX--;
+                if (direction === 'right') newX++;
 
-                    if (
-                        newX >= 0 && newX < gridSize - 1 &&
-                        newY >= 0 && newY < gridSize - 1 &&
-                        !blockedTiles.includes(`${newX},${newY}`) &&
-                        !blockedTiles.includes(`${newX + 1},${newY}`) &&
-                        !blockedTiles.includes(`${newX},${newY + 1}`) &&
-                        !blockedTiles.includes(`${newX + 1},${newY + 1}`)
-                    ) {
-                        playerPos.x = newX;
-                        playerPos.y = newY;
-                    }
+                if (
+                    newX >= 0 && newX < gridSize - 1 &&
+                    newY >= 0 && newY < gridSize - 1 &&
+                    !blockedTiles.includes(`${newX},${newY}`) &&
+                    !blockedTiles.includes(`${newX + 1},${newY}`) &&
+                    !blockedTiles.includes(`${newX},${newY + 1}`) &&
+                    !blockedTiles.includes(`${newX + 1},${newY + 1}`)
+                ) {
+                    playerPos.x = newX;
+                    playerPos.y = newY;
                 }
+            }
 
-                db.ref('votes').set({up: 0, down: 0, left: 0, right: 0});
-                createGrid();
-            });
+            votes = {up: 0, down: 0, left: 0, right: 0};
+            createGrid();
         }
 
         function checkDoor() {
@@ -281,15 +252,15 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') castVote('up');
-            if (e.key === 'ArrowDown') castVote('down');
-            if (e.key === 'ArrowLeft') castVote('left');
-            if (e.key === 'ArrowRight') castVote('right');
+            if (e.key === 'ArrowUp') vote('up');
+            if (e.key === 'ArrowDown') vote('down');
+            if (e.key === 'ArrowLeft') vote('left');
+            if (e.key === 'ArrowRight') vote('right');
         });
 
         generateBlockedTiles();
         createGrid();
-        setInterval(movePlayerFromVotes, 7000); // You can shorten this interval if needed
+        setInterval(movePlayer, 7000);
     </script>
 </body>
 </html>

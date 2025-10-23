@@ -190,10 +190,15 @@
             actions.innerHTML = '';
             for (let h in houses) {
                 const door = houses[h].door;
-                if (
-                    (playerPos.x === door.x || playerPos.x + 1 === door.x) &&
-                    (playerPos.y === door.y || playerPos.y + 1 === door.y)
-                ) {
+
+                const playerTiles = [
+                    `${playerPos.x},${playerPos.y}`,
+                    `${playerPos.x + 1},${playerPos.y}`,
+                    `${playerPos.x},${playerPos.y + 1}`,
+                    `${playerPos.x + 1},${playerPos.y + 1}`
+                ];
+
+                if (playerTiles.includes(`${door.x},${door.y}`)) {
                     const knockBtn = document.createElement('button');
                     knockBtn.innerText = 'Knock on Door';
                     knockBtn.onclick = () => showInterrogationOptions(h);

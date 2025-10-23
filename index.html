@@ -50,12 +50,13 @@
 
         .player-sprite {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 80px; /* 4 tiles wide */
+            height: 80px; /* 4 tiles tall */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             z-index: 20;
+            background-color: limegreen; /* for visibility */
         }
 
         #actions, #clueBox {
@@ -84,7 +85,7 @@
         const grid = document.getElementById('grid');
         const actions = document.getElementById('actions');
         const clueBox = document.getElementById('clueBox');
-        let playerPos = {x: 18, y: 18};
+        let playerPos = {x: 18, y: 18}; // centered
         let votes = {up: 0, down: 0, left: 0, right: 0};
         let lastDirection = 'down';
         let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
@@ -92,7 +93,7 @@
         let playerSprite;
 
         const houses = {
-            haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 7, y: 13 } },
+            haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 8, y: 13 } },
             pumpkin:  { x: 27, y: 4, image: 'pumpkin.png',  door: { x: 31, y: 13 } },
             lab:      { x: 4, y: 27, image: 'lab.png',      door: { x: 8, y: 36 } },
             cemetery: { x: 27, y: 27, image: 'cemetery.png', door: { x: 31, y: 36 } }
@@ -184,8 +185,8 @@
                 if (direction === 'right') newX++;
 
                 let isBlocked = false;
-                for (let dx = 0; dx < 3; dx++) {
-                    for (let dy = 0; dy < 3; dy++) {
+                for (let dx = 0; dx < 4; dx++) {
+                    for (let dy = 0; dy < 4; dy++) {
                         if (blockedTiles.includes(`${newX + dx},${newY + dy}`)) {
                             isBlocked = true;
                         }
@@ -193,8 +194,8 @@
                 }
 
                 if (
-                    newX >= 0 && newX <= gridSize - 3 &&
-                    newY >= 0 && newY <= gridSize - 3 &&
+                    newX >= 0 && newX <= gridSize - 4 &&
+                    newY >= 0 && newY <= gridSize - 4 &&
                     !isBlocked
                 ) {
                     playerPos.x = newX;
@@ -212,8 +213,8 @@
                 const door = houses[h].door;
 
                 const playerTiles = [];
-                for (let dx = 0; dx < 3; dx++) {
-                    for (let dy = 0; dy < 3; dy++) {
+                for (let dx = 0; dx < 4; dx++) {
+                    for (let dy = 0; dy < 4; dy++) {
                         playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
                     }
                 }
@@ -280,7 +281,7 @@
 
         generateBlockedTiles();
         createGrid();
-        setInterval(movePlayer, 2000);
+        setInterval(movePlayer, 1000); // faster movement
     </script>
 </body>
 </html>

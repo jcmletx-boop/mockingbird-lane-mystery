@@ -234,6 +234,14 @@
             clueBox.innerText = clue;
         }
 
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') vote('up');
+            if (e.key === 'ArrowDown') vote('down');
+            if (e.key === 'ArrowLeft') vote('left');
+            if (e.key === 'ArrowRight') vote('right');
+        });
+
         generateBlockedTiles();
         createGrid();
         setInterval(movePlayer, 7000);

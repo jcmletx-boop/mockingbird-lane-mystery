@@ -25,7 +25,7 @@
             width: 20px;
             height: 20px;
             border: 1px solid #333;
-            background-color: #222; /* Makes grid visible */
+            background-color: #222;
         }
 
         .street {
@@ -115,58 +115,53 @@
             }
         }
 
-       function createGrid() {
-    grid.innerHTML = ''; // Clear grid once
+        function createGrid() {
+            grid.innerHTML = '';
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    if (x === 20) cell.classList.add('street');
 
-    for (let y = 0; y < gridSize; y++) {
-        for (let x = 0; x < gridSize; x++) {
-            const cell = document.createElement('div');
-            cell.classList.add('cell');
-            if (x === 20) cell.classList.add('street');
+                    for (let h in houses) {
+                        const door = houses[h].door;
+                        if (x === door.x && y === door.y) {
+                            cell.classList.add('door');
+                        }
+                    }
 
-            for (let h in houses) {
-                const door = houses[h].door;
-                if (x === door.x && y === door.y) {
-                    cell.classList.add('door');
+                    grid.appendChild(cell);
                 }
             }
 
-            grid.appendChild(cell);
+            for (let h in houses) {
+                const house = houses[h];
+                const sprite = document.createElement('div');
+                sprite.classList.add('house-sprite');
+                sprite.style.backgroundImage = `url('${house.image}')`;
+                sprite.style.left = `${house.x * 20}px`;
+                sprite.style.top = `${house.y * 20}px`;
+                grid.appendChild(sprite);
+            }
+
+            playerSprite = document.createElement('div');
+            playerSprite.classList.add('player-sprite');
+            grid.appendChild(playerSprite);
+            updatePlayerSprite();
         }
-    }
 
-    for (let h in houses) {
-        const house = houses[h];
-        const sprite = document.createElement('div');
-        sprite.classList.add('house-sprite');
-        sprite.style.backgroundImage = `url('${house.image}')`;
-        sprite.style.left = `${house.x * 20}px`;
-        sprite.style.top = `${house.y * 20}px`;
-        grid.appendChild(sprite);
-    }
-
-    // Add player sprite once
-    playerSprite = document.createElement('div');
-    playerSprite.classList.add('player-sprite');
-    grid.appendChild(playerSprite);
-
-    updatePlayerSprite(); // Initial position
-}
-
-        
-function updatePlayerSprite() {
-    playerSprite.style.left = `${playerPos.x * 20}px`;
-    playerSprite.style.top = `${playerPos.y * 20}px`;
-    playerSprite.style.backgroundImage = `url('Player${capitalize(lastDirection)}.png')`;
-    checkDoor();
-}
+        function updatePlayerSprite() {
+            playerSprite.style.left = `${playerPos.x * 20}px`;
+            playerSprite.style.top = `${playerPos.y * 20}px`;
+            playerSprite.style.backgroundImage = `url('Player${capitalize(lastDirection)}.png')`;
+            checkDoor();
+        }
 
         function vote(direction) {
             votes[direction]++;
         }
 
         function movePlayer() {
-          console.log("Moving:", lastDirection, "to", playerPos.x, playerPos.y);
             let maxVotes = 0;
             let direction = null;
 

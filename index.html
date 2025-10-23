@@ -72,13 +72,15 @@
     <div id="clueBox"></div>
 
     <script>
-        const gridSize = 20;
-        const grid = document.getElementById('grid');
-        const actions = document.getElementById('actions');
-        const clueBox = document.getElementById('clueBox');
-        let playerPos = {x: 10, y: 19};
-        let votes = {up: 0, down: 0, left: 0, right: 0};
-        let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
+        
+const gridSize = 20;
+    const grid = document.getElementById('grid');
+    const actions = document.getElementById('actions');
+    const clueBox = document.getElementById('clueBox');
+    let playerPos = {x: 10, y: 19};
+    let votes = {up: 0, down: 0, left: 0, right: 0};
+    let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
+
 
         const houses = {
             haunted: {x: 2, y: 2, image: 'haunted.png', door: {x: 3, y: 8}},

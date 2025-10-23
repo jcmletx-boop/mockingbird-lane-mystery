@@ -1,4 +1,3 @@
-html_content = '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +10,7 @@ html_content = '''
             color: #eee;
             text-align: center;
         }
+
         #grid {
             position: relative;
             display: grid;
@@ -20,17 +20,20 @@ html_content = '''
             width: 400px;
             height: 400px;
         }
+
         .cell {
             width: 20px;
             height: 20px;
             border: 1px solid #333;
         }
+
         .player {
             background-color: yellow;
         }
+
         .house-sprite {
             position: absolute;
-            width: 120px;
+            width: 120px; /* 6 cells × 20px */
             height: 120px;
             background-size: contain;
             background-repeat: no-repeat;
@@ -85,9 +88,3 @@ html_content = '''
     </script>
 </body>
 </html>
-'''
-
-with open("index.html", "w") as f:
-    f.write(html_content)
-
-print("index.html file has been created with scaled house sprites.")

@@ -143,6 +143,13 @@
                 grid.appendChild(sprite);
             }
 
+            // Remove existing player sprite if any
+            const existingPlayer = document.querySelector('.player-sprite');
+            if (existingPlayer) {
+                existingPlayer.remove();
+            }
+
+            // Add updated player sprite
             const playerSprite = document.createElement('div');
             playerSprite.classList.add('player-sprite');
             playerSprite.style.left = `${playerPos.x * 20}px`;
@@ -210,73 +217,4 @@
                 const playerTiles = [];
                 for (let dx = 0; dx < 3; dx++) {
                     for (let dy = 0; dy < 3; dy++) {
-                        playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
-                    }
-                }
-
-                if (playerTiles.includes(`${door.x},${door.y}`)) {
-                    const knockBtn = document.createElement('button');
-                    knockBtn.innerText = 'Knock on Door';
-                    knockBtn.onclick = () => showInterrogationOptions(h);
-                    actions.appendChild(knockBtn);
-                }
-            }
-        }
-
-        function showInterrogationOptions(house) {
-            actions.innerHTML = '';
-            const interrogateBtn = document.createElement('button');
-            interrogateBtn.innerText = 'Interrogate';
-            interrogateBtn.onclick = () => interrogate(house);
-            const leaveBtn = document.createElement('button');
-            leaveBtn.innerText = 'Leave';
-            leaveBtn.onclick = () => {
-                clueBox.innerText = 'You left the door.';
-                actions.innerHTML = '';
-            };
-            actions.appendChild(interrogateBtn);
-            actions.appendChild(leaveBtn);
-        }
-
-        function interrogate(house) {
-            if (interrogationCounts[house] >= 2) {
-                clueBox.innerText = 'You have already interrogated here twice.';
-                return;
-            }
-
-            interrogationCounts[house]++;
-            let clue = '';
-            if (house === 'haunted') {
-                clue = interrogationCounts[house] === 1 ?
-                    'Snackula: Someone left a candy bar in my coffin!' :
-                    'Snackula: I heard giggling from the garden...';
-            } else if (house === 'pumpkin') {
-                clue = interrogationCounts[house] === 1 ?
-                    'Sam: Trick-or-treaters drop wrappers all the time!' :
-                    'Sam: Snackula was lurking around...';
-            } else if (house === 'lab') {
-                clue = interrogationCounts[house] === 1 ?
-                    'Sourstein: My robot runs on sugar cubes!' :
-                    'Sourstein: Sam was fiddling with wrappers...';
-            } else if (house === 'cemetery') {
-                clue = interrogationCounts[house] === 1 ?
-                    'Ghostie: I heard rustling in the pumpkin patch...' :
-                    'Ghostie: Snackula seemed hungry for attention.';
-            }
-
-            clueBox.innerText = clue;
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') vote('up');
-            if (e.key === 'ArrowDown') vote('down');
-            if (e.key === 'ArrowLeft') vote('left');
-            if (e.key === 'ArrowRight') vote('right');
-        });
-
-        generateBlockedTiles();
-        createGrid();
-        setInterval(movePlayer, 7000);
-    </script>
-</body>
-</html>
+                        playerTiles.push(`${player

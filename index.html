@@ -131,25 +131,28 @@ const gridSize = 20;
         function vote(direction) {
             votes[direction]++;
         }
+function movePlayer() {
+    let maxVotes = 0;
+    let direction = null;
 
-        function movePlayer() {
-            let maxVotes = 0;
-            let direction = 'up';
-            for (let dir in votes) {
-                if (votes[dir] > maxVotes) {
-                    maxVotes = votes[dir];
-                    direction = dir;
-                }
-            }
-
-            if (direction === 'up' && playerPos.y > 0) playerPos.y--;
-            if (direction === 'down' && playerPos.y < gridSize - 1) playerPos.y++;
-            if (direction === 'left' && playerPos.x > 0) playerPos.x--;
-            if (direction === 'right' && playerPos.x < gridSize - 1) playerPos.x++;
-
-            votes = {up: 0, down: 0, left: 0, right: 0};
-            createGrid();
+    for (let dir in votes) {
+        if (votes[dir] > maxVotes) {
+            maxVotes = votes[dir];
+            direction = dir;
         }
+    }
+
+    if (maxVotes > 0 && direction) {
+        if (direction === 'up' && playerPos.y > 0) playerPos.y--;
+        if (direction === 'down' && playerPos.y < gridSize - 1) playerPos.y++;
+        if (direction === 'left' && playerPos.x > 0) playerPos.x--;
+        if (direction === 'right' && playerPos.x < gridSize - 1) playerPos.x++;
+    }
+
+    votes = {up: 0, down: 0, left: 0, right: 0};
+    createGrid();
+}
+
 
         function checkDoor() {
             actions.innerHTML = '';

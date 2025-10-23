@@ -95,7 +95,12 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
+        
+            // 🔍 Monitor live votes in the browser console
+            db.ref('votes').on('value', snapshot => {
+                console.log('Live votes:', snapshot.val());
+            });
+        
         const gridSize = 40;
         const grid = document.getElementById('grid');
         const actions = document.getElementById('actions');

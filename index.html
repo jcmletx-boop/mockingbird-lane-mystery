@@ -1,55 +1,41 @@
+html_content = '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Mockingbird Lane Mystery</title>
     <style>
-        .haunted {
-            background-image: url('haunted.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .pumpkin {
-            background-image: url('pumpkin.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .lab {
-            background-image: url('lab.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .cemetery {
-            background-image: url('cemetery.png');
-            background-size: cover;
-            background-position: center;
-        }
-
         body {
             font-family: monospace;
             background-color: #111;
             color: #eee;
             text-align: center;
         }
-
         #grid {
+            position: relative;
             display: grid;
             grid-template-columns: repeat(20, 20px);
             grid-template-rows: repeat(20, 20px);
             margin: 20px auto;
+            width: 400px;
+            height: 400px;
         }
-
         .cell {
             width: 20px;
             height: 20px;
             border: 1px solid #333;
         }
-
         .player {
             background-color: yellow;
+        }
+        .house-sprite {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 1;
         }
     </style>
 </head>
@@ -65,33 +51,33 @@
         function createGrid() {
             grid.innerHTML = '';
             const houses = {
-                haunted: {x: 2, y: 2},
-                pumpkin: {x: 14, y: 2},
-                lab: {x: 2, y: 12},
-                cemetery: {x: 14, y: 12}
+                haunted: {x: 2, y: 2, image: 'haunted.png'},
+                pumpkin: {x: 14, y: 2, image: 'pumpkin.png'},
+                lab: {x: 2, y: 12, image: 'lab.png'},
+                cemetery: {x: 14, y: 12, image: 'cemetery.png'}
             };
 
+            // Create grid cells
             for (let y = 0; y < gridSize; y++) {
                 for (let x = 0; x < gridSize; x++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
-
-                    // Add house sprites
-                    for (let h in houses) {
-                        const hx = houses[h].x;
-                        const hy = houses[h].y;
-                        if (x >= hx && x < hx + 4 && y >= hy && y < hy + 4) {
-                            cell.classList.add(h);
-                        }
-                    }
-
-                    // Add player
                     if (x === playerPos.x && y === playerPos.y) {
                         cell.classList.add('player');
                     }
-
                     grid.appendChild(cell);
                 }
+            }
+
+            // Add house sprites
+            for (let h in houses) {
+                const house = houses[h];
+                const sprite = document.createElement('div');
+                sprite.classList.add('house-sprite');
+                sprite.style.backgroundImage = `url('${house.image}')`;
+                sprite.style.left = `${house.x * 20}px`;
+                sprite.style.top = `${house.y * 20}px`;
+                grid.appendChild(sprite);
             }
         }
 
@@ -99,3 +85,9 @@
     </script>
 </body>
 </html>
+'''
+
+with open("index.html", "w") as f:
+    f.write(html_content)
+
+print("index.html file has been created with scaled house sprites.")

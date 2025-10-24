@@ -52,7 +52,7 @@
             z-index: 15;
         }
 
-        .house-sprite, .landscape-sprite {
+        .house-sprite, .landscape-sprite, .fence-sprite {
             position: absolute;
             background-size: contain;
             background-repeat: no-repeat;
@@ -66,9 +66,15 @@
         }
 
         .landscape-sprite {
-            width: 320px; /* 16 tiles * 20px */
-            height: 340px; /* 17 tiles * 20px */
+            width: 320px;
+            height: 340px;
             z-index: 5;
+        }
+
+        .fence-sprite {
+            width: 300px; /* 15 tiles * 20px */
+            height: 60px;  /* 3 tiles * 20px */
+            z-index: 6;
         }
 
         .player-sprite {
@@ -116,10 +122,10 @@
         let playerSprite;
 
         const houses = {
-            haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 7, y: 13 } },
-            pumpkin:  { x: 27, y: 4, image: 'pumpkin.png',  door: { x: 26, y: 10 } },
+            haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 8, y: 13 } },
+            pumpkin:  { x: 27, y: 4, image: 'pumpkin.png',  door: { x: 31, y: 13 } },
             lab:      { x: 4, y: 27, image: 'lab.png',      door: { x: 8, y: 36 } },
-            cemetery: { x: 27, y: 27, image: 'cemetery.png', door: { x: 26, y: 33 } }
+            cemetery: { x: 27, y: 27, image: 'cemetery.png', door: { x: 31, y: 36 } }
         };
 
         function capitalize(str) {
@@ -162,9 +168,9 @@
             // Add landscape sprites
             const landscapes = [
                 { image: 'hauntedland.png', x: 0, y: 0 },
-                { image: 'pumpkinland.png', x: 23, y: 0 }, // shifted right
+                { image: 'pumpkinland.png', x: 23, y: 0 },
                 { image: 'labland.png', x: 0, y: 22 },
-                { image: 'cemeteryland.png', x: 23, y: 22 } // shifted right
+                { image: 'cemeteryland.png', x: 23, y: 22 }
             ];
 
             landscapes.forEach(land => {
@@ -173,6 +179,21 @@
                 sprite.style.backgroundImage = `url('${land.image}')`;
                 sprite.style.left = `${land.x * 20}px`;
                 sprite.style.top = `${land.y * 20}px`;
+                grid.appendChild(sprite);
+            });
+
+            // Add fence sprites
+            const fences = [
+                { x: 0, y: 19 },
+                { x: 24, y: 19 }
+            ];
+
+            fences.forEach(fence => {
+                const sprite = document.createElement('div');
+                sprite.classList.add('fence-sprite');
+                sprite.style.backgroundImage = `url('fence.png')`;
+                sprite.style.left = `${fence.x * 20}px`;
+                sprite.style.top = `${fence.y * 20}px`;
                 grid.appendChild(sprite);
             });
 

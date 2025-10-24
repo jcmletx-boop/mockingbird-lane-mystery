@@ -156,7 +156,8 @@
         let greeted = {haunted: false, pumpkin: false, lab: false, cemetery: false};
         let blockedTiles = [];
         let playerSprite;
-
+        let hasKnocked = {haunted: false, pumpkin: false, lab: false, cemetery: false};
+        
         const houses = {
             haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 8, y: 13 }, name: 'Snackula' },
             pumpkin:  { x: 27, y: 4, image: 'pumpkin.png',  door: { x: 31, y: 13 }, name: 'Sam' },
@@ -314,19 +315,20 @@
             actions.innerHTML = '';
             for (let h in houses) {
                 const door = houses[h].door;
-
+        
                 const playerTiles = [];
                 for (let dx = 0; dx < 4; dx++) {
                     for (let dy = 0; dy < 4; dy++) {
                         playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
                     }
                 }
-
-                if (playerTiles.includes(`${door.x},${door.y}`)) {
+        
+                if (playerTiles.includes(`${door.x},${door.y}`) && !hasKnocked[h]) {
                     showKnockButton(h);
                 }
             }
         }
+
 
         function showKnockButton(houseKey) {
             actions.innerHTML = '';
@@ -336,12 +338,14 @@
             actions.appendChild(knockBtn);
         }
 
-        function greetOccupant(houseKey) {
-            const house = houses[houseKey];
-            clueBox.innerText = `${house.name}: Hello there...`;
-            greeted[houseKey] = true;
-            showInterrogationOptions(houseKey);
-        }
+        
+function greetOccupant(houseKey) {
+    const house = houses[houseKey];
+    clueBox.innerText = `${house.name}: Hello there...`;
+    hasKnocked[houseKey] = true;
+    showInterrogationOptions(houseKey);
+}
+
 
         function showInterrogationOptions(houseKey) {
             actions.innerHTML = '';

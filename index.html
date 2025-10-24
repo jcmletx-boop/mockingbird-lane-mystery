@@ -157,6 +157,7 @@
         let blockedTiles = [];
         let playerSprite;
         let hasKnocked = {haunted: false, pumpkin: false, lab: false, cemetery: false};
+        let currentHouseAtDoor = null;
         
         const houses = {
             haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 8, y: 13 }, name: 'Snackula' },
@@ -311,24 +312,42 @@
             updatePlayerSprite();
         }
 
-        function checkDoor() {
-            actions.innerHTML = '';
-            for (let h in houses) {
-                const door = houses[h].door;
-        
-                const playerTiles = [];
-                for (let dx = 0; dx < 4; dx++) {
-                    for (let dy = 0; dy < 4; dy++) {
-                        playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
-                    }
-                }
-        
-                if (playerTiles.includes(`${door.x},${door.y}`) && !hasKnocked[h]) {
-                    showKnockButton(h);
-                }
+
+function checkDoor() {
+    let foundHouse = null;
+
+    for (let h in houses) {
+        const door = houses[h].door;
+        const playerTiles = [];
+
+        for (let dx = 0; dx < 4; dx++) {
+            for (let dy = 0; dy < 4; dy++) {
+                playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
             }
         }
 
+        if (playerTiles.includes(`${door.x},${door.y}`)) {
+            foundHouse = h;
+            break;
+        }
+    }
+
+    if (foundHouse !== currentHouseAtDoor) {
+        currentHouseAtDoor = foundHouse;
+        actions.innerHTML = '';
+
+        if (foundHouse && !hasKnocked[foundHouse]) {
+            showKnockButton(foundHouse);
+        } else if (foundHouse) {
+            showInterrogationOptions(foundHouse);
+        }
+    }
+
+    if (!foundHouse) {
+        currentHouseAtDoor = null;
+        actions.innerHTML = '';
+    }
+}
 
         function showKnockButton(houseKey) {
             actions.innerHTML = '';

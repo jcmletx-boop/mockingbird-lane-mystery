@@ -52,7 +52,7 @@
             z-index: 15;
         }
 
-        .house-sprite, .landscape-sprite, .fence-sprite {
+        .house-sprite, .landscape-sprite {
             position: absolute;
             background-size: contain;
             background-repeat: no-repeat;
@@ -71,9 +71,25 @@
             z-index: 5;
         }
 
-        .fence-sprite {
-            width: 800px; /* 40 tiles * 20px */
-            height: 60px;  /* 3 tiles * 20px */
+        .fence-left {
+            position: absolute;
+            width: 300px; /* 15 tiles */
+            height: 60px;  /* 3 tiles */
+            background-image: url('fence.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: left;
+            z-index: 6;
+        }
+
+        .fence-right {
+            position: absolute;
+            width: 340px; /* 17 tiles */
+            height: 60px;
+            background-image: url('fence.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: right;
             z-index: 6;
         }
 
@@ -182,20 +198,18 @@
                 grid.appendChild(sprite);
             });
 
-            // Add fence sprites
-            const fences = [
-                { x: 0, y: 19 },
-                { x: 0, y: 19 }
-            ];
+            // Add split fence sprites
+            const fenceLeft = document.createElement('div');
+            fenceLeft.classList.add('fence-left');
+            fenceLeft.style.left = `0px`;
+            fenceLeft.style.top = `${19 * 20}px`;
+            grid.appendChild(fenceLeft);
 
-            fences.forEach(fence => {
-                const sprite = document.createElement('div');
-                sprite.classList.add('fence-sprite');
-                sprite.style.backgroundImage = `url('fence.png')`;
-                sprite.style.left = `${fence.x * 20}px`;
-                sprite.style.top = `${fence.y * 20}px`;
-                grid.appendChild(sprite);
-            });
+            const fenceRight = document.createElement('div');
+            fenceRight.classList.add('fence-right');
+            fenceRight.style.left = `${23 * 20}px`;
+            fenceRight.style.top = `${19 * 20}px`;
+            grid.appendChild(fenceRight);
 
             // Add house sprites
             for (let h in houses) {

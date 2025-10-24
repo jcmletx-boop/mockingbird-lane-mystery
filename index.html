@@ -384,7 +384,7 @@ function greetOccupant(houseKey) {
             }
 
             if (interrogationCounts[houseKey] >= 2) {
-                clueBox.innerText = 'You have already interrogated here twice.';
+                clueBox.innerText = 'Scram!!';
             }
         }
 
@@ -396,7 +396,7 @@ function greetOccupant(houseKey) {
 
         function interrogate(houseKey) {
             if (interrogationCounts[houseKey] >= 2) {
-                clueBox.innerText = 'You have already interrogated here twice.';
+                clueBox.innerText = 'Scram!!';
                 return;
             }
 

@@ -115,7 +115,7 @@
             background-color: limegreen;
         }
 
-        #actions {
+        #actions, #clueBox {
             margin-top: 10px;
         }
 
@@ -142,203 +142,276 @@
         <div id="actions"></div>
         <div id="clueBox"></div>
     </div>
-<script>
-    const gridSize = 40;
-    const grid = document.getElementById('grid');
-    const actions = document.getElementById('actions');
-    const clueBox = document.getElementById('clueBox');
-    const clueList = document.getElementById('clueList');
-    let playerPos = {x: 18, y: 18};
-    let votes = {up: 0, down: 0, left: 0, right: 0};
-    let lastDirection = 'down';
-    let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
-    let greeted = {haunted: false, pumpkin: false, lab: false, cemetery: false};
-    let blockedTiles = [];
-    let playerSprite;
 
-    const houses = {
-        haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 8, y: 13 }, name: 'Snackula' },
-        pumpkin:  { x: 27, y: 4, image: 'pumpkin.png',  door: { x: 31, y: 13 }, name: 'Sam' },
-        lab:      { x: 4, y: 27, image: 'lab.png',      door: { x: 8, y: 36 }, name: 'Sourstein' },
-        cemetery: { x: 27, y: 27, image: 'cemetery.png', door: { x: 31, y: 36 }, name: 'Ghostie' }
-    };
+    <script>
+        const gridSize = 40;
+        const grid = document.getElementById('grid');
+        const actions = document.getElementById('actions');
+        const clueBox = document.getElementById('clueBox');
+        const clueList = document.getElementById('clueList');
+        let playerPos = {x: 18, y: 18};
+        let votes = {up: 0, down: 0, left: 0, right: 0};
+        let lastDirection = 'down';
+        let interrogationCounts = {haunted: 0, pumpkin: 0, lab: 0, cemetery: 0};
+        let greeted = {haunted: false, pumpkin: false, lab: false, cemetery: false};
+        let blockedTiles = [];
+        let playerSprite;
 
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+        const houses = {
+            haunted:  { x: 4, y: 4,  image: 'haunted.png',  door: { x: 8, y: 13 }, name: 'Snackula' },
+            pumpkin:  { x: 27, y: 4, image: 'pumpkin.png',  door: { x: 31, y: 13 }, name: 'Sam' },
+            lab:      { x: 4, y: 27, image: 'lab.png',      door: { x: 8, y: 36 }, name: 'Sourstein' },
+            cemetery: { x: 27, y: 27, image: 'cemetery.png', door: { x: 31, y: 36 }, name: 'Ghostie' }
+        };
 
-    function generateBlockedTiles() {
-        blockedTiles = [];
-        for (let h in houses) {
-            const house = houses[h];
-            for (let y = house.y; y < house.y + 9; y++) {
-                for (let x = house.x; x < house.x + 9; x++) {
-                    if (x === house.door.x && y === house.door.y) continue;
-                    blockedTiles.push(`${x},${y}`);
-                }
-            }
-        }
-    }
-
-    function updatePlayerSprite() {
-        playerSprite.style.left = `${playerPos.x * 20}px`;
-        playerSprite.style.top = `${playerPos.y * 20}px`;
-        playerSprite.style.backgroundImage = `url('Player${capitalize(lastDirection)}.png')`;
-        checkDoor();
-    }
-
-    function vote(direction) {
-        votes[direction]++;
-    }
-
-    function movePlayer() {
-        let maxVotes = 0;
-        let direction = null;
-
-        for (let dir in votes) {
-            if (votes[dir] > maxVotes) {
-                maxVotes = votes[dir];
-                direction = dir;
-            }
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        let newX = playerPos.x;
-        let newY = playerPos.y;
-
-        if (maxVotes > 0 && direction) {
-            lastDirection = direction;
-
-            if (direction === 'up') newY--;
-            if (direction === 'down') newY++;
-            if (direction === 'left') newX--;
-            if (direction === 'right') newX++;
-
-            let isBlocked = false;
-            for (let dx = 0; dx < 4; dx++) {
-                for (let dy = 0; dy < 4; dy++) {
-                    if (blockedTiles.includes(`${newX + dx},${newY + dy}`)) {
-                        isBlocked = true;
+        function generateBlockedTiles() {
+            blockedTiles = [];
+            for (let h in houses) {
+                const house = houses[h];
+                for (let y = house.y; y < house.y + 9; y++) {
+                    for (let x = house.x; x < house.x + 9; x++) {
+                        if (x === house.door.x && y === house.door.y) continue;
+                        blockedTiles.push(`${x},${y}`);
                     }
                 }
             }
-
-            if (
-                newX >= 0 && newX <= gridSize - 4 &&
-                newY >= 0 && newY <= gridSize - 4 &&
-                !isBlocked
-            ) {
-                playerPos.x = newX;
-                playerPos.y = newY;
-            }
         }
 
-        votes = {up: 0, down: 0, left: 0, right: 0};
-        updatePlayerSprite();
-    }
+        function createGrid() {
+            grid.innerHTML = '';
 
-    function checkDoor() {
-        actions.innerHTML = '';
-        for (let h in houses) {
-            const door = houses[h].door;
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
 
-            const playerTiles = [];
-            for (let dx = 0; dx < 4; dx++) {
-                for (let dy = 0; dy < 4; dy++) {
-                    playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
+                    if (x >= 16 && x <= 22) {
+                        if (x === 19) {
+                            cell.classList.add('yellow-stripe');
+                        } else {
+                            cell.classList.add('street');
+                        }
+                    }
+
+                    grid.appendChild(cell);
                 }
             }
 
-            if (playerTiles.includes(`${door.x},${door.y}`)) {
-                showKnockButton(h);
+            const landscapes = [
+                { image: 'hauntedland.png', x: 0, y: 0 },
+                { image: 'pumpkinland.png', x: 23, y: 0 },
+                { image: 'labland.png', x: 0, y: 22 },
+                { image: 'cemeteryland.png', x: 23, y: 22 }
+            ];
+
+            landscapes.forEach(land => {
+                const sprite = document.createElement('div');
+                sprite.classList.add('landscape-sprite');
+                sprite.style.backgroundImage = `url('${land.image}')`;
+                sprite.style.left = `${land.x * 20}px`;
+                sprite.style.top = `${land.y * 20}px`;
+                grid.appendChild(sprite);
+            });
+
+            const fenceLeft = document.createElement('div');
+            fenceLeft.classList.add('fence-left');
+            fenceLeft.style.left = `0px`;
+            fenceLeft.style.top = `${19 * 20}px`;
+            grid.appendChild(fenceLeft);
+
+            const fenceRight = document.createElement('div');
+            fenceRight.classList.add('fence-right');
+            fenceRight.style.left = `${23 * 20}px`;
+            fenceRight.style.top = `${19 * 20}px`;
+            grid.appendChild(fenceRight);
+
+            for (let h in houses) {
+                const house = houses[h];
+                const sprite = document.createElement('div');
+                sprite.classList.add('house-sprite');
+                sprite.style.backgroundImage = `url('${house.image}')`;
+                sprite.style.left = `${house.x * 20}px`;
+                sprite.style.top = `${house.y * 20}px`;
+                grid.appendChild(sprite);
+            }
+
+            for (let h in houses) {
+                const door = houses[h].door;
+                const doorDiv = document.createElement('div');
+                doorDiv.classList.add('door-overlay');
+                doorDiv.style.left = `${door.x * 20}px`;
+                doorDiv.style.top = `${door.y * 20}px`;
+                grid.appendChild(doorDiv);
+            }
+
+            playerSprite = document.createElement('div');
+            playerSprite.classList.add('player-sprite');
+            grid.appendChild(playerSprite);
+            updatePlayerSprite();
+        }
+
+        function updatePlayerSprite() {
+            playerSprite.style.left = `${playerPos.x * 20}px`;
+            playerSprite.style.top = `${playerPos.y * 20}px`;
+            playerSprite.style.backgroundImage = `url('Player${capitalize(lastDirection)}.png')`;
+            checkDoor();
+        }
+
+        function vote(direction) {
+            votes[direction]++;
+        }
+
+        function movePlayer() {
+            let maxVotes = 0;
+            let direction = null;
+
+            for (let dir in votes) {
+                if (votes[dir] > maxVotes) {
+                    maxVotes = votes[dir];
+                    direction = dir;
+                }
+            }
+
+            let newX = playerPos.x;
+            let newY = playerPos.y;
+
+            if (maxVotes > 0 && direction) {
+                lastDirection = direction;
+
+                if (direction === 'up') newY--;
+                if (direction === 'down') newY++;
+                if (direction === 'left') newX--;
+                if (direction === 'right') newX++;
+
+                let isBlocked = false;
+                for (let dx = 0; dx < 4; dx++) {
+                    for (let dy = 0; dy < 4; dy++) {
+                        if (blockedTiles.includes(`${newX + dx},${newY + dy}`)) {
+                            isBlocked = true;
+                        }
+                    }
+                }
+
+                if (
+                    newX >= 0 && newX <= gridSize - 4 &&
+                    newY >= 0 && newY <= gridSize - 4 &&
+                    !isBlocked
+                ) {
+                    playerPos.x = newX;
+                    playerPos.y = newY;
+                }
+            }
+
+            votes = {up: 0, down: 0, left: 0, right: 0};
+            updatePlayerSprite();
+        }
+
+        function checkDoor() {
+            actions.innerHTML = '';
+            for (let h in houses) {
+                const door = houses[h].door;
+
+                const playerTiles = [];
+                for (let dx = 0; dx < 4; dx++) {
+                    for (let dy = 0; dy < 4; dy++) {
+                        playerTiles.push(`${playerPos.x + dx},${playerPos.y + dy}`);
+                    }
+                }
+
+                if (playerTiles.includes(`${door.x},${door.y}`)) {
+                    showKnockButton(h);
+                }
             }
         }
-    }
 
-    function showKnockButton(houseKey) {
-        actions.innerHTML = '';
-        const knockBtn = document.createElement('button');
-        knockBtn.innerText = 'Knock on Door';
-        knockBtn.onclick = () => greetOccupant(houseKey);
-        actions.appendChild(knockBtn);
-    }
-
-    function greetOccupant(houseKey) {
-        const house = houses[houseKey];
-        clueBox.innerText = `${house.name}: Hello there...`;
-        greeted[houseKey] = true;
-        showInterrogationOptions(houseKey);
-    }
-
-    function showInterrogationOptions(houseKey) {
-        actions.innerHTML = '';
-
-        if (interrogationCounts[houseKey] < 1) {
-            const askBtn = document.createElement('button');
-            askBtn.innerText = 'Ask a Question';
-            askBtn.onclick = () => interrogate(houseKey);
-            actions.appendChild(askBtn);
+        function showKnockButton(houseKey) {
+            actions.innerHTML = '';
+            const knockBtn = document.createElement('button');
+            knockBtn.innerText = 'Knock on Door';
+            knockBtn.onclick = () => greetOccupant(houseKey);
+            actions.appendChild(knockBtn);
         }
 
-        if (interrogationCounts[houseKey] === 1) {
-            const followUpBtn = document.createElement('button');
-            followUpBtn.innerText = 'What else do you know?!';
-            followUpBtn.onclick = () => interrogate(houseKey);
-            actions.appendChild(followUpBtn);
+        function greetOccupant(houseKey) {
+            const house = houses[houseKey];
+            clueBox.innerText = `${house.name}: Hello there...`;
+            greeted[houseKey] = true;
+            showInterrogationOptions(houseKey);
         }
 
-        if (interrogationCounts[houseKey] >= 2) {
-            clueBox.innerText = 'You have already interrogated here twice.';
-        }
-    }
+        function showInterrogationOptions(houseKey) {
+            actions.innerHTML = '';
 
-    function addClueToLog(text) {
-        const item = document.createElement('li');
-        item.textContent = text;
-        clueList.appendChild(item);
-    }
+            if (interrogationCounts[houseKey] < 1) {
+                const askBtn = document.createElement('button');
+                askBtn.innerText = 'Ask a Question';
+                askBtn.onclick = () => interrogate(houseKey);
+                actions.appendChild(askBtn);
+            }
 
-    function interrogate(houseKey) {
-        if (interrogationCounts[houseKey] >= 2) {
-            clueBox.innerText = 'You have already interrogated here twice.';
-            return;
-        }
+            if (interrogationCounts[houseKey] === 1) {
+                const followUpBtn = document.createElement('button');
+                followUpBtn.innerText = 'What else do you know?!';
+                followUpBtn.onclick = () => interrogate(houseKey);
+                actions.appendChild(followUpBtn);
+            }
 
-        interrogationCounts[houseKey]++;
-        let clue = '';
-        if (houseKey === 'haunted') {
-            clue = interrogationCounts[houseKey] === 1 ?
-                'Snackula: Someone left a candy bar in my coffin!' :
-                'Snackula: I heard giggling from the garden...';
-        } else if (houseKey === 'pumpkin') {
-            clue = interrogationCounts[houseKey] === 1 ?
-                'Sam: Trick-or-treaters drop wrappers all the time!' :
-                'Sam: Snackula was lurking around...';
-        } else if (houseKey === 'lab') {
-            clue = interrogationCounts[houseKey] === 1 ?
-                'Sourstein: My robot runs on sugar cubes!' :
-                'Sourstein: Sam was fiddling with wrappers...';
-        } else if (houseKey === 'cemetery') {
-            clue = interrogationCounts[houseKey] === 1 ?
-                'Ghostie: I heard rustling in the pumpkin patch...' :
-                'Ghostie: Snackula seemed hungry for attention.';
+            if (interrogationCounts[houseKey] >= 2) {
+                clueBox.innerText = 'You have already interrogated here twice.';
+            }
         }
 
-        clueBox.innerText = clue;
-        addClueToLog(clue);
-        showInterrogationOptions(houseKey);
-    }
+        function addClueToLog(text) {
+            const item = document.createElement('li');
+            item.textContent = text;
+            clueList.appendChild(item);
+        }
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowUp') vote('up');
-        if (e.key === 'ArrowDown') vote('down');
-        if (e.key === 'ArrowLeft') vote('left');
-        if (e.key === 'ArrowRight') vote('right');
-    });
+        function interrogate(houseKey) {
+            if (interrogationCounts[houseKey] >= 2) {
+                clueBox.innerText = 'You have already interrogated here twice.';
+                return;
+            }
 
-    generateBlockedTiles();
-    createGrid();
-    setInterval(movePlayer, 1000);
-</script>
-    
+            interrogationCounts[houseKey]++;
+            let clue = '';
+            if (houseKey === 'haunted') {
+                clue = interrogationCounts[houseKey] === 1 ?
+                    'Snackula: Someone left a candy bar in my coffin!' :
+                    'Snackula: I heard giggling from the garden...';
+            } else if (houseKey === 'pumpkin') {
+                clue = interrogationCounts[houseKey] === 1 ?
+                    'Sam: Trick-or-treaters drop wrappers all the time!' :
+                    'Sam: Snackula was lurking around...';
+            } else if (houseKey === 'lab') {
+                clue = interrogationCounts[houseKey] === 1 ?
+                    'Sourstein: My robot runs on sugar cubes!' :
+                    'Sourstein: Sam was fiddling with wrappers...';
+            } else if (houseKey === 'cemetery') {
+                clue = interrogationCounts[houseKey] === 1 ?
+                    'Ghostie: I heard rustling in the pumpkin patch...' :
+                    'Ghostie: Snackula seemed hungry for attention.';
+            }
+
+            clueBox.innerText = clue;
+            addClueToLog(clue);
+            showInterrogationOptions(houseKey);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') vote('up');
+            if (e.key === 'ArrowDown') vote('down');
+            if (e.key === 'ArrowLeft') vote('left');
+            if (e.key === 'ArrowRight') vote('right');
+        });
+
+        generateBlockedTiles();
+        createGrid();
+        setInterval(movePlayer, 1000);
+    </script>
 </body>
 </html>

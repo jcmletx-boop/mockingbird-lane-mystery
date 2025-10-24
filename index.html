@@ -8,7 +8,28 @@
             font-family: monospace;
             background-color: #111;
             color: #eee;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            padding-top: 20px;
+        }
+
+        #clueLog {
+            width: 200px;
+            height: 800px;
+            background-color: #222;
+            border: 2px solid #444;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        #clueLog h2 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #ffeb99;
         }
 
         #grid {
@@ -16,7 +37,6 @@
             display: grid;
             grid-template-columns: repeat(40, 20px);
             grid-template-rows: repeat(40, 20px);
-            margin: 20px auto;
             width: 800px;
             height: 800px;
         }
@@ -34,12 +54,6 @@
 
         .yellow-stripe {
             background-color: #ffeb99;
-        }
-
-        .door {
-            border: 2px solid red;
-            background-color: #800;
-            box-sizing: border-box;
         }
 
         .door-overlay {
@@ -71,26 +85,23 @@
             z-index: 5;
         }
 
-        .fence-left {
+        .fence-left, .fence-right {
             position: absolute;
-            width: 300px; /* 15 tiles */
-            height: 60px;  /* 3 tiles */
-            background-image: url('fence.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: left;
-            z-index: 6;
-        }
-
-        .fence-right {
-            position: absolute;
-            width: 340px; /* 17 tiles */
             height: 60px;
             background-image: url('fence.png');
             background-size: cover;
             background-repeat: no-repeat;
-            background-position: right;
             z-index: 6;
+        }
+
+        .fence-left {
+            width: 300px;
+            background-position: left;
+        }
+
+        .fence-right {
+            width: 340px;
+            background-position: right;
         }
 
         .player-sprite {
@@ -104,7 +115,7 @@
             background-color: limegreen;
         }
 
-        #actions, #clueBox {
+        #actions {
             margin-top: 10px;
         }
 
@@ -114,22 +125,30 @@
     </style>
 </head>
 <body>
-    <h1>Mockingbird Lane Mystery</h1>
-    <div id="grid"></div>
-    <div>
-        <button onclick="vote('up')">Up</button>
-        <button onclick="vote('down')">Down</button>
-        <button onclick="vote('left')">Left</button>
-        <button onclick="vote('right')">Right</button>
+    <div id="clueLog">
+        <h2>Clue Log</h2>
+        <ul id="clueList"></ul>
     </div>
-    <div id="actions"></div>
-    <div id="clueBox"></div>
+
+    <div>
+        <h1>Mockingbird Lane Mystery</h1>
+        <div id="grid"></div>
+        <div>
+            <button onclick="vote('up')">Up</button>
+            <button onclick="vote('down')">Down</button>
+            <button onclick="vote('left')">Left</button>
+            <button onclick="vote('right')">Right</button>
+        </div>
+        <div id="actions"></div>
+        <div id="clueBox"></div>
+    </div>
 
     <script>
         const gridSize = 40;
         const grid = document.getElementById('grid');
         const actions = document.getElementById('actions');
         const clueBox = document.getElementById('clueBox');
+        const clueList = document.getElementById('clueList');
         let playerPos = {x: 18, y: 18};
         let votes = {up: 0, down: 0, left: 0, right: 0};
         let lastDirection = 'down';
@@ -181,7 +200,6 @@
                 }
             }
 
-            // Add landscape sprites
             const landscapes = [
                 { image: 'hauntedland.png', x: 0, y: 0 },
                 { image: 'pumpkinland.png', x: 23, y: 0 },
@@ -198,7 +216,6 @@
                 grid.appendChild(sprite);
             });
 
-            // Add split fence sprites
             const fenceLeft = document.createElement('div');
             fenceLeft.classList.add('fence-left');
             fenceLeft.style.left = `0px`;
@@ -211,7 +228,6 @@
             fenceRight.style.top = `${19 * 20}px`;
             grid.appendChild(fenceRight);
 
-            // Add house sprites
             for (let h in houses) {
                 const house = houses[h];
                 const sprite = document.createElement('div');
@@ -222,7 +238,6 @@
                 grid.appendChild(sprite);
             }
 
-            // Add door overlays
             for (let h in houses) {
                 const door = houses[h].door;
                 const doorDiv = document.createElement('div');
@@ -232,7 +247,6 @@
                 grid.appendChild(doorDiv);
             }
 
-            // Add player sprite
             playerSprite = document.createElement('div');
             playerSprite.classList.add('player-sprite');
             grid.appendChild(playerSprite);
@@ -331,6 +345,12 @@
             actions.appendChild(leaveBtn);
         }
 
+        function addClueToLog(text) {
+            const item = document.createElement('li');
+            item.textContent = text;
+            clueList.appendChild(item);
+        }
+
         function interrogate(house) {
             if (interrogationCounts[house] >= 2) {
                 clueBox.innerText = 'You have already interrogated here twice.';
@@ -358,6 +378,7 @@
             }
 
             clueBox.innerText = clue;
+            addClueToLog(clue);
         }
 
         document.addEventListener('keydown', (e) => {

@@ -42,14 +42,23 @@
             box-sizing: border-box;
         }
 
-        .house-sprite {
+        .house-sprite, .landscape-sprite {
             position: absolute;
-            width: 180px;
-            height: 180px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+        }
+
+        .house-sprite {
+            width: 180px;
+            height: 180px;
             z-index: 10;
+        }
+
+        .landscape-sprite {
+            width: 320px; /* 16 tiles * 20px */
+            height: 340px; /* 17 tiles * 20px */
+            z-index: 5;
         }
 
         .player-sprite {
@@ -122,11 +131,12 @@
 
         function createGrid() {
             grid.innerHTML = '';
+
             for (let y = 0; y < gridSize; y++) {
                 for (let x = 0; x < gridSize; x++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
-             
+
                     if (x >= 16 && x <= 22) {
                         if (x === 19) {
                             cell.classList.add('yellow-stripe');
@@ -146,6 +156,24 @@
                 }
             }
 
+            // Add landscape sprites
+            const landscapes = [
+                { image: 'hauntedland.png', x: 0, y: 0 },
+                { image: 'pumpkinland.png', x: 22, y: 0 },
+                { image: 'labland.png', x: 0, y: 22 },
+                { image: 'cemeteryland.png', x: 22, y: 22 }
+            ];
+
+            landscapes.forEach(land => {
+                const sprite = document.createElement('div');
+                sprite.classList.add('landscape-sprite');
+                sprite.style.backgroundImage = `url('${land.image}')`;
+                sprite.style.left = `${land.x * 20}px`;
+                sprite.style.top = `${land.y * 20}px`;
+                grid.appendChild(sprite);
+            });
+
+            // Add house sprites
             for (let h in houses) {
                 const house = houses[h];
                 const sprite = document.createElement('div');
@@ -156,6 +184,7 @@
                 grid.appendChild(sprite);
             }
 
+            // Add player sprite
             playerSprite = document.createElement('div');
             playerSprite.classList.add('player-sprite');
             grid.appendChild(playerSprite);
